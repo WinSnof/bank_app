@@ -1,0 +1,194 @@
+### Переменные
+@baseUrl = http://localhost:8080/api
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InRlc3RfdXNlciIsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsImV4cCI6MTc0NjgxNjY4NX0.cbr5ZC0l7rq0BfvS7ugtakcHgMBGylchmcuJJF89g_o
+
+### Аутентификация
+
+## Регистрация нового пользователя
+POST {{baseUrl}}/security/register
+Content-Type: application/json
+
+{
+  "username": "test_user",
+  "password": "password123",
+  "email": "test@example.com",
+  "fio": "Тест"
+}
+
+###
+POST {{baseUrl}}/security/login
+Content-Type: application/json
+
+{
+  "username": "test_user",
+  "password": "password123"
+}
+
+### Сохраняем токен из ответа
+#@token = {{login.response.body.token}}
+
+## Получение информации о текущем пользователе
+GET {{baseUrl}}/security/my
+Authorization: {{token}}
+
+### Проверка статуса авторизации
+GET {{baseUrl}}/security/security-status
+Authorization: {{token}}
+
+## Управление счетами
+
+### Создание нового счета
+POST {{baseUrl}}/accounts
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "name": "Тестовый счет",
+  "balance": 1000,
+  "currency": "RUB",
+  "account_type": "checking"
+}
+
+### Получение списка счетов пользователя
+GET {{baseUrl}}/accounts
+Authorization: {{token}}
+
+### Получение информации о конкретном счете
+GET {{baseUrl}}/accounts/1
+Authorization: {{token}}
+
+### Получение всех счетов (только для админа)
+GET {{baseUrl}}/accounts/all
+Authorization: {{token}}
+
+## Пополнение счета
+### @name deposit
+POST {{baseUrl}}/accounts/1/deposit
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "amount": 500,
+  "description": "Пополнение счета"
+}
+
+### Снятие средств со счета
+POST {{baseUrl}}/accounts/1/withdraw
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "amount": 200,
+  "description": "Снятие средств"
+}
+
+### Перевод между счетами
+POST {{baseUrl}}/accounts/1/transfer
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "to_account_id": 2,
+  "amount": 300,
+  "description": "Перевод между счетами"
+}
+
+### Получение истории транзакций по счету
+GET {{baseUrl}}/accounts/1/transactions
+Authorization: {{token}}
+
+### Управление картами
+
+## Создание новой карты
+POST {{baseUrl}}/cards
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "account_id": 1,
+  "name": "Тестовая карта",
+  "card_type": "debit"
+}
+
+### Получение всех карт пользователя
+GET {{baseUrl}}/cards
+Authorization: {{token}}
+
+### Получение информации о конкретной карте
+GET {{baseUrl}}/cards/1
+Authorization: {{token}}
+
+### Кредиты
+
+## Создание нового кредита
+POST {{baseUrl}}/credits
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "account_id": 1,
+  "amount": 50000,
+  "term_months": 12,
+  "description": "Потребительский кредит"
+}
+
+### Получение списка кредитов пользователя
+GET {{baseUrl}}/credits
+Authorization: {{token}}
+
+### Получение информации о конкретном кредите
+GET {{baseUrl}}/credits/1
+Authorization: {{token}}
+
+### Получение графика платежей по кредиту
+GET {{baseUrl}}/credits/1/schedule
+Authorization: {{token}}
+
+### Выполнение платежа по кредиту
+POST {{baseUrl}}/credits/1/payment
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "payment_number": 1
+}
+
+### Аналитика
+
+## Получение аналитики по счетам пользователя
+GET {{baseUrl}}/analytics?account_id=1&start_date=2025-01-01&end_date=2025-12-31
+Authorization: {{token}}
+
+### Получение прогноза баланса по счету
+GET {{baseUrl}}/analytics/accounts/1/forecast
+Authorization: {{token}}
+
+### Получение статистики по категориям расходов (GET запрос)
+GET {{baseUrl}}/analytics/spending-categories?account_id=1&start_date=2025-01-01&end_date=2025-12-31
+Authorization: {{token}}
+
+### Получение статистики по категориям расходов (POST запрос)
+POST {{baseUrl}}/analytics/spending-categories
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "account_id": 1,
+  "start_date": "2025-01-01",
+  "end_date": "2025-12-31"
+}
+
+### Административные функции
+
+## Получение всех кредитов (только для админа)
+GET {{baseUrl}}/admin/credits
+Authorization: {{token}}
+
+### Запуск проверки платежей по кредитам
+POST {{baseUrl}}/admin/scheduler/check-payments
+Authorization: {{token}}
+
+### Получение актуальной ключевой ставки ЦБ РФ
+GET {{baseUrl}}/keyrate
+Authorization: {{token}}
